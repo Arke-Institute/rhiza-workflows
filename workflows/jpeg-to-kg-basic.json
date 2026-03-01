@@ -1,0 +1,24 @@
+{
+  "label": "JPEG to KG Basic",
+  "description": "Extracts text via OCR, chunks, and extracts knowledge graph entities with deduplication",
+  "version": "1.0",
+  "entry": "ocr",
+  "flow": {
+    "ocr": {
+      "klados": { "id": "$OCR_WORKER_KLADOS" },
+      "then": { "pass": "chunk" }
+    },
+    "chunk": {
+      "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
+      "then": { "scatter": "extract" }
+    },
+    "extract": {
+      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
+      "then": { "scatter": "dedupe" }
+    },
+    "dedupe": {
+      "klados": { "id": "$KG_DEDUPE_RESOLVER_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}

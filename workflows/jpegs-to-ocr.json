@@ -1,0 +1,16 @@
+{
+  "label": "JPEGs to OCR",
+  "description": "Scatters multiple JPEG images and extracts text from each via OCR",
+  "version": "1.0",
+  "entry": "scatter",
+  "flow": {
+    "scatter": {
+      "klados": { "id": "$SCATTER_KLADOS" },
+      "then": { "scatter": "ocr" }
+    },
+    "ocr": {
+      "klados": { "id": "$OCR_WORKER_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}

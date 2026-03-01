@@ -1,0 +1,47 @@
+{
+  "label": "Image to KG Full",
+  "description": "Converts image to JPEG, extracts text via OCR, extracts knowledge graph with clustering and descriptions",
+  "version": "1.0",
+  "entry": "convert",
+  "flow": {
+    "convert": {
+      "klados": { "id": "$IMAGE_CONVERTER_KLADOS" },
+      "then": { "pass": "ocr" }
+    },
+    "ocr": {
+      "klados": { "id": "$OCR_WORKER_KLADOS" },
+      "then": { "pass": "chunk" }
+    },
+    "chunk": {
+      "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
+      "then": { "scatter": "extract" }
+    },
+    "extract": {
+      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
+      "then": { "scatter": "dedupe" }
+    },
+    "dedupe": {
+      "klados": { "id": "$KG_DEDUPE_RESOLVER_KLADOS" },
+      "then": { "scatter": "cluster" }
+    },
+    "cluster": {
+      "klados": { "id": "$KG_CLUSTER_KLADOS" },
+      "input": {
+        "initial_delay_max_ms": 30000,
+        "follower_wait_min_ms": 30000,
+        "follower_wait_max_ms": 60000,
+        "follower_poll_interval_ms": 5000
+      },
+      "then": { "scatter": "describe" }
+    },
+    "describe": {
+      "klados": { "id": "$DESCRIBE_KLADOS" },
+      "input": {
+        "update_label": true,
+        "style": "detailed",
+        "custom_instructions": "Use existing label if appropriate. Focus on creating a concise, informative description that captures the essence of the entity and its relationships."
+      },
+      "then": { "done": true }
+    }
+  }
+}

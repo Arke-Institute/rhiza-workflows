@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# State files (contain rhiza IDs per network)
+.rhiza-state-*.json
+
+# Environment
+.env
+
+# OS
+.DS_Store

@@ -1,0 +1,43 @@
+{
+  "label": "JPEG to KG Recursive",
+  "description": "Extracts text via OCR, extracts knowledge graph with clustering and descriptions, then recursively clusters results",
+  "version": "1.0",
+  "entry": "ocr",
+  "flow": {
+    "ocr": {
+      "klados": { "id": "$OCR_WORKER_KLADOS" },
+      "then": { "pass": "chunk" }
+    },
+    "chunk": {
+      "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
+      "then": { "scatter": "extract" }
+    },
+    "extract": {
+      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
+      "then": { "scatter": "dedupe" }
+    },
+    "dedupe": {
+      "klados": { "id": "$KG_DEDUPE_RESOLVER_KLADOS" },
+      "then": { "scatter": "cluster" }
+    },
+    "cluster": {
+      "klados": { "id": "$KG_CLUSTER_KLADOS" },
+      "input": {
+        "initial_delay_max_ms": 30000,
+        "follower_wait_min_ms": 30000,
+        "follower_wait_max_ms": 60000,
+        "follower_poll_interval_ms": 5000
+      },
+      "then": { "scatter": "describe" }
+    },
+    "describe": {
+      "klados": { "id": "$DESCRIBE_KLADOS" },
+      "input": {
+        "update_label": true,
+        "style": "detailed",
+        "custom_instructions": "Use existing label if appropriate. Focus on creating a concise, informative description that captures the essence of the entity and its relationships."
+      },
+      "then": { "recurse": "cluster", "max_depth": 10 }
+    }
+  }
+}

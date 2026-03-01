@@ -1,0 +1,20 @@
+{
+  "label": "Text to KG Basic",
+  "description": "Chunks text and extracts knowledge graph entities with deduplication",
+  "version": "1.0",
+  "entry": "chunk",
+  "flow": {
+    "chunk": {
+      "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
+      "then": { "scatter": "extract" }
+    },
+    "extract": {
+      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
+      "then": { "scatter": "dedupe" }
+    },
+    "dedupe": {
+      "klados": { "id": "$KG_DEDUPE_RESOLVER_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}

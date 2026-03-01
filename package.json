@@ -1,0 +1,24 @@
+{
+  "name": "@arke-institute/rhiza-workflows",
+  "version": "1.0.0",
+  "description": "Unified rhiza workflow definitions for file processing and KG extraction pipelines",
+  "type": "module",
+  "scripts": {
+    "register": "tsx scripts/register.ts",
+    "register:prod": "tsx scripts/register.ts --prod",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@arke-institute/rhiza": "^0.7.12",
+    "@arke-institute/sdk": "^3.6.13"
+  },
+  "devDependencies": {
+    "@arke-institute/klados-testing": "^0.3.3",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.0.0"
+  }
+}

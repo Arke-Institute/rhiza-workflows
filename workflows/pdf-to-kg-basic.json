@@ -1,0 +1,28 @@
+{
+  "label": "PDF to KG Basic",
+  "description": "Converts PDF to text via OCR, chunks, and extracts knowledge graph entities with deduplication",
+  "version": "1.0",
+  "entry": "pdf_convert",
+  "flow": {
+    "pdf_convert": {
+      "klados": { "id": "$PDF_TO_JPEG_KLADOS" },
+      "then": { "scatter": "ocr" }
+    },
+    "ocr": {
+      "klados": { "id": "$OCR_WORKER_KLADOS" },
+      "then": { "pass": "chunk" }
+    },
+    "chunk": {
+      "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
+      "then": { "scatter": "extract" }
+    },
+    "extract": {
+      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
+      "then": { "scatter": "dedupe" }
+    },
+    "dedupe": {
+      "klados": { "id": "$KG_DEDUPE_RESOLVER_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}
