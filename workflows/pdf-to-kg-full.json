@@ -1,7 +1,7 @@
 {
   "label": "PDF to KG Full",
-  "description": "Converts PDF to text via OCR, extracts knowledge graph with clustering and descriptions",
-  "version": "1.0",
+  "description": "Converts PDF to text via OCR, extracts knowledge graph with clustering and descriptions. Extracted images are described before KG extraction.",
+  "version": "1.1",
   "entry": "pdf_convert",
   "flow": {
     "pdf_convert": {
@@ -10,7 +10,19 @@
     },
     "ocr": {
       "klados": { "id": "$OCR_WORKER_KLADOS" },
-      "then": { "pass": "chunk" }
+      "then": {
+        "scatter": "chunk",
+        "route": [
+          {
+            "where": { "property": "entity_class", "equals": "extracted_image" },
+            "target": "describe_image"
+          }
+        ]
+      }
+    },
+    "describe_image": {
+      "klados": { "id": "$DESCRIBE_KLADOS" },
+      "then": { "pass": "extract" }
     },
     "chunk": {
       "klados": { "id": "$TEXT_CHUNKER_KLADOS" },

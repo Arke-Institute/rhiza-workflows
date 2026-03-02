@@ -1,7 +1,7 @@
 {
   "label": "Image to KG Basic",
-  "description": "Converts image to JPEG, extracts text via OCR, chunks, and extracts knowledge graph entities with deduplication",
-  "version": "1.0",
+  "description": "Converts image to JPEG, extracts text via OCR, chunks, and extracts knowledge graph entities with deduplication. Extracted images are described before KG extraction.",
+  "version": "1.1",
   "entry": "convert",
   "flow": {
     "convert": {
@@ -10,7 +10,19 @@
     },
     "ocr": {
       "klados": { "id": "$OCR_WORKER_KLADOS" },
-      "then": { "pass": "chunk" }
+      "then": {
+        "scatter": "chunk",
+        "route": [
+          {
+            "where": { "property": "entity_class", "equals": "extracted_image" },
+            "target": "describe_image"
+          }
+        ]
+      }
+    },
+    "describe_image": {
+      "klados": { "id": "$DESCRIBE_KLADOS" },
+      "then": { "pass": "extract" }
     },
     "chunk": {
       "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
