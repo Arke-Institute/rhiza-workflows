@@ -1,9 +1,13 @@
 {
   "label": "Text to KG Basic",
-  "description": "Chunks text and extracts knowledge graph entities with deduplication",
-  "version": "1.0",
-  "entry": "chunk",
+  "description": "Scatters multiple text entities, chunks and extracts knowledge graph entities with deduplication",
+  "version": "2.0",
+  "entry": "scatter",
   "flow": {
+    "scatter": {
+      "klados": { "id": "$SCATTER_KLADOS" },
+      "then": { "scatter": "chunk" }
+    },
     "chunk": {
       "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
       "then": { "scatter": "extract" }

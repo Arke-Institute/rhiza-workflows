@@ -1,8 +1,7 @@
 # Dependencies
 node_modules/
 
-# State files (contain rhiza IDs per network)
-.rhiza-state-*.json
+# State files are tracked (both test and prod)
 
 # Environment
 .env
