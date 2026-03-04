@@ -1,7 +1,7 @@
 {
   "label": "PDF to KG Recursive",
-  "description": "Scatters multiple PDFs, converts to text via OCR and extracts knowledge graph with clustering and descriptions, then recursively clusters results. Extracted images are described before KG extraction.",
-  "version": "2.0",
+  "description": "Scatters multiple PDFs, converts to text via OCR and extracts knowledge graph with clustering and descriptions, then recursively clusters results. Extracted images are described before KG extraction. Cluster and describe are inlined (not sub-rhiza) so cluster sees all entities across pages.",
+  "version": "3.1",
   "entry": "scatter",
   "flow": {
     "scatter": {
@@ -10,7 +10,15 @@
     },
     "pdf_convert": {
       "klados": { "id": "$PDF_TO_JPEG_KLADOS" },
-      "then": { "scatter": "ocr" }
+      "then": {
+        "scatter": "ocr",
+        "route": [
+          {
+            "where": { "property": "needs_ocr", "equals": false },
+            "target": "extract"
+          }
+        ]
+      }
     },
     "ocr": {
       "klados": { "id": "$OCR_WORKER_KLADOS" },
@@ -53,7 +61,10 @@
         "style": "detailed",
         "custom_instructions": "Use existing label if appropriate. Focus on creating a concise, informative description that captures the essence of the entity and its relationships."
       },
-      "then": { "recurse": "cluster", "max_depth": 10 }
+      "then": {
+        "recurse": "cluster",
+        "max_depth": 10
+      }
     }
   }
 }

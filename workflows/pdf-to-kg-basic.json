@@ -1,7 +1,7 @@
 {
   "label": "PDF to KG Basic",
   "description": "Scatters multiple PDFs, converts to text via OCR and extracts knowledge graph entities with deduplication. Extracted images are described before KG extraction.",
-  "version": "2.0",
+  "version": "3.0",
   "entry": "scatter",
   "flow": {
     "scatter": {
@@ -10,12 +10,20 @@
     },
     "pdf_convert": {
       "klados": { "id": "$PDF_TO_JPEG_KLADOS" },
-      "then": { "scatter": "ocr" }
+      "then": {
+        "scatter": "ocr",
+        "route": [
+          {
+            "where": { "property": "needs_ocr", "equals": false },
+            "target": "kg_process"
+          }
+        ]
+      }
     },
     "ocr": {
       "klados": { "id": "$OCR_WORKER_KLADOS" },
       "then": {
-        "scatter": "extract",
+        "scatter": "kg_process",
         "route": [
           {
             "where": { "property": "entity_class", "equals": "extracted_image" },
@@ -26,14 +34,10 @@
     },
     "describe_image": {
       "klados": { "id": "$DESCRIBE_KLADOS" },
-      "then": { "pass": "extract" }
+      "then": { "pass": "kg_process" }
     },
-    "extract": {
-      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
-      "then": { "scatter": "dedupe" }
-    },
-    "dedupe": {
-      "klados": { "id": "$KG_DEDUPE_RESOLVER_KLADOS" },
+    "kg_process": {
+      "klados": { "id": "$KG_BASIC_SINGLE_RHIZA", "type": "rhiza" },
       "then": { "done": true }
     }
   }
