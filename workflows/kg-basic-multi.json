@@ -1,0 +1,16 @@
+{
+  "label": "KG Basic (Multi)",
+  "description": "Scatters multiple entities and extracts knowledge graph entities. Multi-entity entry point with built-in scatter.",
+  "version": "2.0",
+  "entry": "scatter",
+  "flow": {
+    "scatter": {
+      "klados": { "id": "$SCATTER_KLADOS" },
+      "then": { "scatter": "extract" }
+    },
+    "extract": {
+      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "label": "PDF to KG Basic",
-  "description": "Scatters multiple PDFs, converts to text via OCR and extracts knowledge graph entities with deduplication. Extracted images are described before KG extraction.",
+  "description": "Scatters multiple PDFs, converts to text via OCR and extracts knowledge graph entities. Extracted images are described before KG extraction.",
   "version": "3.0",
   "entry": "scatter",
   "flow": {

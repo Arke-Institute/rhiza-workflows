@@ -1,7 +1,8 @@
 {
   "label": "Text to KG Full",
-  "description": "Scatters multiple text entities, chunks and extracts knowledge graph with clustering and descriptions",
-  "version": "2.0",
+  "status": "development",
+  "description": "[EXPERIMENTAL] Scatters multiple text entities, chunks and extracts knowledge graph with clustering and descriptions. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
+  "version": "3.1",
   "entry": "scatter",
   "flow": {
     "scatter": {

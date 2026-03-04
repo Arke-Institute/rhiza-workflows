@@ -1,16 +1,12 @@
 {
-  "label": "Text to KG Recursive",
+  "label": "KG Full (Multi)",
   "status": "development",
-  "description": "[EXPERIMENTAL] Scatters multiple text entities, chunks, extracts knowledge graph with clustering and descriptions, then recursively clusters results. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
-  "version": "3.1",
+  "description": "[EXPERIMENTAL] Scatters multiple entities, extracts knowledge graph with clustering and descriptions. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
+  "version": "1.0",
   "entry": "scatter",
   "flow": {
     "scatter": {
       "klados": { "id": "$SCATTER_KLADOS" },
-      "then": { "scatter": "chunk" }
-    },
-    "chunk": {
-      "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
       "then": { "scatter": "extract" }
     },
     "extract": {
@@ -38,10 +34,7 @@
         "style": "detailed",
         "custom_instructions": "Use existing label if appropriate. Focus on creating a concise, informative description that captures the essence of the entity and its relationships."
       },
-      "then": {
-        "recurse": "cluster",
-        "max_depth": 10
-      }
+      "then": { "done": true }
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "label": "Text to KG Basic",
-  "description": "Scatters multiple text entities, chunks and extracts knowledge graph entities with deduplication",
-  "version": "2.0",
+  "description": "Scatters multiple text entities, chunks and extracts knowledge graph entities.",
+  "version": "3.0",
   "entry": "scatter",
   "flow": {
     "scatter": {
@@ -10,14 +10,10 @@
     },
     "chunk": {
       "klados": { "id": "$TEXT_CHUNKER_KLADOS" },
-      "then": { "scatter": "extract" }
+      "then": { "scatter": "kg_process" }
     },
-    "extract": {
-      "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
-      "then": { "scatter": "dedupe" }
-    },
-    "dedupe": {
-      "klados": { "id": "$KG_DEDUPE_RESOLVER_KLADOS" },
+    "kg_process": {
+      "klados": { "id": "$KG_BASIC_SINGLE_RHIZA", "type": "rhiza" },
       "then": { "done": true }
     }
   }

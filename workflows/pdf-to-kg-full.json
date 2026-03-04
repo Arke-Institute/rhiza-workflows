@@ -1,6 +1,7 @@
 {
   "label": "PDF to KG Full",
-  "description": "Scatters multiple PDFs, converts to text via OCR and extracts knowledge graph with clustering and descriptions. Extracted images are described before KG extraction. Cluster and describe are inlined (not sub-rhiza) so cluster sees all entities across pages.",
+  "status": "development",
+  "description": "[EXPERIMENTAL] Scatters multiple PDFs, converts to text via OCR and extracts knowledge graph with clustering and descriptions. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
   "version": "3.1",
   "entry": "scatter",
   "flow": {
