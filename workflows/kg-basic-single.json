@@ -1,11 +1,15 @@
 {
   "label": "KG Basic (Single)",
-  "description": "Reusable KG extraction core: extract entities from a single input. Single-entity entry point, designed to be invoked as a sub-rhiza from pipelines that handle their own scattering.",
-  "version": "2.0",
+  "description": "Reusable KG extraction core: extract and deduplicate entities from a single input. Single-entity entry point, designed to be invoked as a sub-rhiza from pipelines that handle their own scattering.",
+  "version": "3.0",
   "entry": "extract",
   "flow": {
     "extract": {
       "klados": { "id": "$KG_EXTRACTOR_KLADOS" },
+      "then": { "scatter": "dedupe" }
+    },
+    "dedupe": {
+      "klados": { "id": "$KG_DEDUPE_RESOLVER_KLADOS" },
       "then": { "done": true }
     }
   }

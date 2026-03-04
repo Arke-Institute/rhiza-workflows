@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    testTimeout: 600000, // 10 min max for recursive workflows
+    testTimeout: 1800000, // 30 min max for PDF workflows with large tree traversal (700+ logs)
     hookTimeout: 60000,
     pool: 'forks',
     poolOptions: {

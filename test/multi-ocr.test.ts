@@ -1,230 +1,147 @@
 /**
- * Multi-file OCR Workflow Tests
+ * OCR-Only Workflow Tests
  *
- * Tests the jpegs-to-ocr and images-to-ocr workflows.
- * These workflows scatter multiple input files for parallel OCR processing.
+ * Tests all OCR-only workflows (no KG extraction):
+ * - jpegs-to-ocr: scatter → ocr → done
+ * - images-to-ocr: scatter → convert → ocr → done
+ * - pdfs-to-ocr: scatter → pdf_convert → ocr → done
+ *
+ * These tests use multiple input files to verify the scatter pattern.
+ * Uses real artwork images (Met collection) and a scanned government PDF.
  */
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import * as fs from 'fs';
-import * as path from 'path';
+import { log } from '@arke-institute/klados-testing';
 import {
-  configureTestClient,
-  createCollection,
-  createEntity,
-  invokeRhiza,
-  waitForWorkflowTree,
-  log,
-} from '@arke-institute/klados-testing';
+  ARKE_USER_KEY,
+  KLADOS_IDS,
+  initTestClient,
+  setupTestCollection,
+  createFileEntity,
+  fixturePath,
+  runWorkflow,
+  assertKladosRan,
+  filterLogs,
+} from './helpers';
 
-// Configuration
-const ARKE_API_BASE = process.env.ARKE_API_BASE || 'https://arke-v1.arke.institute';
-const ARKE_USER_KEY = process.env.ARKE_USER_KEY;
-const NETWORK = (process.env.ARKE_NETWORK || 'main') as 'test' | 'main';
-
-// Workflow IDs
 const JPEGS_TO_OCR_RHIZA = process.env.JPEGS_TO_OCR_RHIZA;
 const IMAGES_TO_OCR_RHIZA = process.env.IMAGES_TO_OCR_RHIZA;
+const PDFS_TO_OCR_RHIZA = process.env.PDFS_TO_OCR_RHIZA;
 
-// Klados IDs for verification
-const SCATTER_KLADOS = process.env.SCATTER_KLADOS || '01KJ61043AFBTGY9CQSVDF5WW2';
-const IMAGE_CONVERTER_KLADOS = process.env.IMAGE_CONVERTER_KLADOS || '01KJAZMNZ3YRX46HWG2V55NXQC';
-const OCR_WORKER_KLADOS = process.env.OCR_WORKER_KLADOS || '01KJ6WQDQ0QRVG1VP5BJFBRG9N';
+describe('ocr-only workflows', () => {
+  let collectionId: string;
 
-describe('multi-ocr workflows', () => {
-  let targetCollection: { id: string };
-
-  beforeAll(() => {
-    if (!ARKE_USER_KEY) {
-      console.warn('Skipping tests: ARKE_USER_KEY not set');
-      return;
-    }
-    configureTestClient({
-      apiBase: ARKE_API_BASE,
-      userKey: ARKE_USER_KEY,
-      network: NETWORK,
-    });
-  });
+  beforeAll(() => { initTestClient(); });
 
   beforeAll(async () => {
     if (!ARKE_USER_KEY) return;
-
-    log('Creating test collection...');
-    targetCollection = await createCollection({
-      label: `Multi OCR Test ${Date.now()}`,
-      roles: { public: ['*:view', '*:invoke'] },
-    });
-    log(`Created collection: ${targetCollection.id}`);
+    const col = await setupTestCollection('OCR Workflows Test');
+    collectionId = col.id;
   });
 
-  async function createJpegEntity(label: string): Promise<{ id: string }> {
-    const entity = await createEntity({
-      type: 'file',
-      properties: {
-        label,
-        content: {
-          'test.jpeg': {
-            content_type: 'image/jpeg',
-          },
-        },
-      },
-      collection: targetCollection.id,
-    });
+  // =========================================================================
+  // jpegs-to-ocr
+  // =========================================================================
 
-    const jpegPath = path.join(__dirname, 'fixtures', 'test.jpeg');
-    const jpegBuffer = fs.readFileSync(jpegPath);
+  it.skipIf(!ARKE_USER_KEY || !JPEGS_TO_OCR_RHIZA)(
+    'jpegs-to-ocr: scatter 3 JPEGs and OCR each',
+    async () => {
+      log('Creating 3 JPEG entities...');
+      const jpegs = await Promise.all([
+        createFileEntity({ collectionId, label: 'Artwork 1', filename: 'artwork-1.jpeg', contentType: 'image/jpeg', fixturePath: fixturePath('artwork-1.jpeg') }),
+        createFileEntity({ collectionId, label: 'Artwork 2', filename: 'artwork-2.jpeg', contentType: 'image/jpeg', fixturePath: fixturePath('artwork-2.jpeg') }),
+        createFileEntity({ collectionId, label: 'Artwork 3', filename: 'artwork-3.jpeg', contentType: 'image/jpeg', fixturePath: fixturePath('artwork-3.jpeg') }),
+      ]);
+      const entityIds = jpegs.map(j => j.id);
+      log(`Created entities: ${entityIds.join(', ')}`);
 
-    const uploadUrl = `${ARKE_API_BASE}/entities/${entity.id}/content?key=test.jpeg`;
-    const response = await fetch(uploadUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `ApiKey ${ARKE_USER_KEY}`,
-        'X-Arke-Network': NETWORK,
-        'Content-Type': 'image/jpeg',
-      },
-      body: jpegBuffer,
-    });
+      const { logs } = await runWorkflow({
+        rhizaId: JPEGS_TO_OCR_RHIZA!,
+        entityIds,
+        collectionId,
+        timeout: 180000,
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to upload JPEG: ${response.statusText}`);
-    }
+      assertKladosRan(logs, {
+        [KLADOS_IDS.SCATTER]: { min: 1 },
+        [KLADOS_IDS.OCR_WORKER]: { exact: 3 },
+      });
 
-    return entity;
-  }
+      log('jpegs-to-ocr completed successfully');
+    },
+    180000,
+  );
 
-  async function createPngEntity(label: string): Promise<{ id: string }> {
-    const entity = await createEntity({
-      type: 'file',
-      properties: {
-        label,
-        content: {
-          'test.png': {
-            content_type: 'image/png',
-          },
-        },
-      },
-      collection: targetCollection.id,
-    });
+  // =========================================================================
+  // images-to-ocr (mixed formats: PNG + WebP)
+  // =========================================================================
 
-    const pngPath = path.join(__dirname, 'fixtures', 'test.png');
-    const pngBuffer = fs.readFileSync(pngPath);
+  it.skipIf(!ARKE_USER_KEY || !IMAGES_TO_OCR_RHIZA)(
+    'images-to-ocr: scatter PNGs and WebP, convert and OCR each',
+    async () => {
+      log('Creating image entities (2 PNG + 1 WebP)...');
+      const images = await Promise.all([
+        createFileEntity({ collectionId, label: 'Artwork PNG 1', filename: 'artwork-1.png', contentType: 'image/png', fixturePath: fixturePath('artwork-1.png') }),
+        createFileEntity({ collectionId, label: 'Artwork PNG 2', filename: 'artwork-1.png', contentType: 'image/png', fixturePath: fixturePath('artwork-1.png') }),
+        createFileEntity({ collectionId, label: 'Artwork WebP', filename: 'artwork-2.webp', contentType: 'image/webp', fixturePath: fixturePath('artwork-2.webp') }),
+      ]);
+      const entityIds = images.map(i => i.id);
+      log(`Created entities: ${entityIds.join(', ')}`);
 
-    const uploadUrl = `${ARKE_API_BASE}/entities/${entity.id}/content?key=test.png`;
-    const response = await fetch(uploadUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `ApiKey ${ARKE_USER_KEY}`,
-        'X-Arke-Network': NETWORK,
-        'Content-Type': 'image/png',
-      },
-      body: pngBuffer,
-    });
+      const { logs } = await runWorkflow({
+        rhizaId: IMAGES_TO_OCR_RHIZA!,
+        entityIds,
+        collectionId,
+        timeout: 180000,
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to upload PNG: ${response.statusText}`);
-    }
+      assertKladosRan(logs, {
+        [KLADOS_IDS.SCATTER]: { min: 1 },
+        [KLADOS_IDS.IMAGE_CONVERTER]: { exact: 3 },
+        [KLADOS_IDS.OCR_WORKER]: { exact: 3 },
+      });
 
-    return entity;
-  }
+      log('images-to-ocr completed successfully');
+    },
+    180000,
+  );
 
-  it('jpegs-to-ocr: should scatter multiple JPEGs and OCR each', async () => {
-    if (!ARKE_USER_KEY || !JPEGS_TO_OCR_RHIZA) {
-      console.warn('Test skipped: missing ARKE_USER_KEY or JPEGS_TO_OCR_RHIZA');
-      return;
-    }
+  // =========================================================================
+  // pdfs-to-ocr
+  // =========================================================================
 
-    // Create multiple JPEG entities
-    log('Creating 3 JPEG entities...');
-    const jpeg1 = await createJpegEntity('JPEG 1');
-    const jpeg2 = await createJpegEntity('JPEG 2');
-    const jpeg3 = await createJpegEntity('JPEG 3');
-    const entityIds = [jpeg1.id, jpeg2.id, jpeg3.id];
-    log(`Created entities: ${entityIds.join(', ')}`);
+  it.skipIf(!ARKE_USER_KEY || !PDFS_TO_OCR_RHIZA)(
+    'pdfs-to-ocr: scatter scanned PDF, convert to JPEG, OCR each page',
+    async () => {
+      log('Creating PDF entity...');
+      const pdf = await createFileEntity({
+        collectionId,
+        label: 'Scanned PDF',
+        filename: 'scanned.pdf',
+        contentType: 'application/pdf',
+        fixturePath: fixturePath('scanned.pdf'),
+      });
+      log(`Created entity: ${pdf.id}`);
 
-    log('Invoking jpegs-to-ocr workflow...');
-    const result = await invokeRhiza({
-      rhizaId: JPEGS_TO_OCR_RHIZA,
-      targetEntity: jpeg1.id, // Entry point (scatter will use entity_ids)
-      targetCollection: targetCollection.id,
-      input: { entity_ids: entityIds },
-      confirm: true,
-    });
+      const { logs } = await runWorkflow({
+        rhizaId: PDFS_TO_OCR_RHIZA!,
+        entityIds: [pdf.id],
+        collectionId,
+        timeout: 180000,
+      });
 
-    expect(result.status).toBe('started');
-    log(`Job started: ${result.job_id}`);
+      assertKladosRan(logs, {
+        [KLADOS_IDS.SCATTER]: { min: 1 },
+        [KLADOS_IDS.PDF_TO_JPEG]: { min: 1 },
+      });
 
-    const tree = await waitForWorkflowTree(result.job_collection!, {
-      timeout: 180000,
-      pollInterval: 5000,
-      onPoll: (t, elapsed) => {
-        const elapsedSec = Math.round(elapsed / 1000);
-        log(`[${elapsedSec}s] ${t.logs.size} logs, complete=${t.isComplete}`);
-      },
-    });
+      // Each PDF page produces an OCR invocation
+      const ocrLogs = filterLogs(logs, KLADOS_IDS.OCR_WORKER);
+      expect(ocrLogs.length).toBeGreaterThanOrEqual(1);
+      log(`OCR logs: ${ocrLogs.length} (one per page)`);
 
-    expect(tree.isComplete).toBe(true);
-
-    // Verify scatter and OCR steps
-    const logs = Array.from(tree.logs.values());
-    const scatterLogs = logs.filter((l: any) => l.properties?.klados_id === SCATTER_KLADOS);
-    const ocrLogs = logs.filter((l: any) => l.properties?.klados_id === OCR_WORKER_KLADOS);
-
-    log(`Scatter: ${scatterLogs.length}, OCR: ${ocrLogs.length}`);
-
-    expect(scatterLogs.length).toBeGreaterThan(0);
-    expect(ocrLogs.length).toBe(3); // One OCR per JPEG
-
-    log('jpegs-to-ocr completed successfully!');
-  }, 180000);
-
-  it('images-to-ocr: should scatter, convert to JPEG, and OCR each', async () => {
-    if (!ARKE_USER_KEY || !IMAGES_TO_OCR_RHIZA) {
-      console.warn('Test skipped: missing ARKE_USER_KEY or IMAGES_TO_OCR_RHIZA');
-      return;
-    }
-
-    // Create multiple PNG entities
-    log('Creating 2 PNG entities...');
-    const png1 = await createPngEntity('PNG 1');
-    const png2 = await createPngEntity('PNG 2');
-    const entityIds = [png1.id, png2.id];
-    log(`Created entities: ${entityIds.join(', ')}`);
-
-    log('Invoking images-to-ocr workflow...');
-    const result = await invokeRhiza({
-      rhizaId: IMAGES_TO_OCR_RHIZA,
-      targetEntity: png1.id,
-      targetCollection: targetCollection.id,
-      input: { entity_ids: entityIds },
-      confirm: true,
-    });
-
-    expect(result.status).toBe('started');
-    log(`Job started: ${result.job_id}`);
-
-    const tree = await waitForWorkflowTree(result.job_collection!, {
-      timeout: 180000,
-      pollInterval: 5000,
-      onPoll: (t, elapsed) => {
-        const elapsedSec = Math.round(elapsed / 1000);
-        log(`[${elapsedSec}s] ${t.logs.size} logs, complete=${t.isComplete}`);
-      },
-    });
-
-    expect(tree.isComplete).toBe(true);
-
-    // Verify all steps
-    const logs = Array.from(tree.logs.values());
-    const scatterLogs = logs.filter((l: any) => l.properties?.klados_id === SCATTER_KLADOS);
-    const convertLogs = logs.filter((l: any) => l.properties?.klados_id === IMAGE_CONVERTER_KLADOS);
-    const ocrLogs = logs.filter((l: any) => l.properties?.klados_id === OCR_WORKER_KLADOS);
-
-    log(`Scatter: ${scatterLogs.length}, Convert: ${convertLogs.length}, OCR: ${ocrLogs.length}`);
-
-    expect(scatterLogs.length).toBeGreaterThan(0);
-    expect(convertLogs.length).toBe(2); // One convert per PNG
-    expect(ocrLogs.length).toBe(2); // One OCR per converted image
-
-    log('images-to-ocr completed successfully!');
-  }, 180000);
+      log('pdfs-to-ocr completed successfully');
+    },
+    180000,
+  );
 });

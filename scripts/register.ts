@@ -10,6 +10,7 @@
  *   ARKE_USER_KEY=uk_... npm run register -- --workflow pdf-to-kg-full # Register one (test)
  *   ARKE_USER_KEY=uk_... npm run register:prod -- --workflow pdf-to-kg-full # Register one (main)
  *   ARKE_USER_KEY=uk_... npm run register -- --dry-run --all          # Preview only
+ *   ARKE_USER_KEY=uk_... npm run register -- --force --all            # Force update (ignore hash)
  *   ARKE_USER_KEY=uk_... npm run register -- --list                   # List available workflows
  */
 
@@ -97,6 +98,7 @@ function listWorkflows(): string[] {
 function parseArgs(): {
   isProduction: boolean;
   isDryRun: boolean;
+  force: boolean;
   migrateCollection: boolean;
   listOnly: boolean;
   registerAll: boolean;
@@ -106,6 +108,7 @@ function parseArgs(): {
   const args = process.argv.slice(2);
   const isProduction = args.includes('--production') || args.includes('--prod');
   const isDryRun = args.includes('--dry-run');
+  const force = args.includes('--force');
   const migrateCollection = args.includes('--migrate-collection');
   const listOnly = args.includes('--list');
   const registerAll = args.includes('--all');
@@ -117,7 +120,7 @@ function parseArgs(): {
     specificWorkflow = args[workflowIdx + 1].replace(/\.json$/, '');
   }
 
-  return { isProduction, isDryRun, migrateCollection, listOnly, registerAll, specificWorkflow, activate };
+  return { isProduction, isDryRun, force, migrateCollection, listOnly, registerAll, specificWorkflow, activate };
 }
 
 // =============================================================================
@@ -130,6 +133,7 @@ async function registerWorkflow(
   network: 'test' | 'main',
   options: {
     isDryRun: boolean;
+    force: boolean;
     migrateCollection: boolean;
     collectionId?: string;
     activate: boolean;
@@ -209,6 +213,7 @@ async function registerWorkflow(
     const result = await syncRhiza(client, config, updatedState, {
       network,
       dryRun: options.isDryRun,
+      force: options.force,
       collectionId: options.collectionId,
       collectionLabel: `Rhiza: ${config.label}`,
     });
@@ -268,6 +273,7 @@ async function main() {
   const {
     isProduction,
     isDryRun,
+    force,
     migrateCollection,
     listOnly,
     registerAll,
@@ -307,7 +313,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`\nRhiza Workflow Registration (${network} network)${isDryRun ? ' [DRY RUN]' : ''}${activate ? ' [ACTIVATE]' : ''}\n`);
+  console.log(`\nRhiza Workflow Registration (${network} network)${isDryRun ? ' [DRY RUN]' : ''}${force ? ' [FORCE]' : ''}${activate ? ' [ACTIVATE]' : ''}\n`);
   console.log(`Workflows to register: ${workflowsToRegister.length}`);
 
   // Create client
@@ -345,6 +351,7 @@ async function main() {
     console.log(`[${workflowName}]`);
     const result = await registerWorkflow(client, workflowName, network, {
       isDryRun,
+      force,
       migrateCollection,
       collectionId,
       activate,

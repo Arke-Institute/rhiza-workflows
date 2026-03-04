@@ -1,0 +1,20 @@
+{
+  "label": "PDFs to OCR",
+  "description": "Scatters multiple PDFs, converts each to JPEG pages, and extracts text via OCR",
+  "version": "1.0",
+  "entry": "scatter",
+  "flow": {
+    "scatter": {
+      "klados": { "id": "$SCATTER_KLADOS" },
+      "then": { "scatter": "pdf_convert" }
+    },
+    "pdf_convert": {
+      "klados": { "id": "$PDF_TO_JPEG_KLADOS" },
+      "then": { "scatter": "ocr" }
+    },
+    "ocr": {
+      "klados": { "id": "$OCR_WORKER_KLADOS" },
+      "then": { "done": true }
+    }
+  }
+}
