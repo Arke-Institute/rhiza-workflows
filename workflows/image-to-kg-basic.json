@@ -1,6 +1,6 @@
 {
   "label": "Image to KG Basic",
-  "description": "Scatters multiple images, converts to JPEG, extracts text via OCR, and extracts knowledge graph entities. Extracted images are described before KG extraction.",
+  "description": "End-to-end pipeline for non-JPEG image files (TIFF, PNG, WebP, GIF, BMP): scatters multiple images, converts to JPEG, extracts text via OCR, then extracts knowledge graph entities. For JPEGs use jpeg-to-kg, for PDFs use pdf-to-kg. Handles all file processing automatically — use this instead of KG-only workflows for image input.",
   "version": "3.0",
   "entry": "scatter",
   "flow": {

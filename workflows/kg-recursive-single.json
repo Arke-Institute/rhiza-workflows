@@ -1,7 +1,7 @@
 {
   "label": "KG Recursive (Single)",
   "status": "development",
-  "description": "[EXPERIMENTAL] Full KG pipeline with recursive clustering: extract, deduplicate, cluster, describe, then recurse back to cluster. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
+  "description": "[EXPERIMENTAL] Full KG pipeline with recursive clustering for text-bearing entities: extract, deduplicate, cluster, describe, then recurse. Input entities must have a 'text' property already populated — do NOT pass raw files (PDFs, images). Use a file-to-KG workflow for raw files. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
   "version": "1.0",
   "entry": "extract",
   "flow": {

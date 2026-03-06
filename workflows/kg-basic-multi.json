@@ -1,6 +1,6 @@
 {
   "label": "KG Basic (Multi)",
-  "description": "Scatters multiple entities, extracts and deduplicates knowledge graph entities. Multi-entity entry point with built-in scatter.",
+  "description": "Scatters multiple text-bearing entities, extracts and deduplicates knowledge graph entities. Expects entities with a 'text' property already populated (e.g. from OCR, PDF text extraction, or text chunking). Do NOT pass raw files (PDFs, images) — use a file-to-KG workflow instead. Multi-entity entry point with built-in scatter.",
   "version": "3.0",
   "entry": "scatter",
   "flow": {

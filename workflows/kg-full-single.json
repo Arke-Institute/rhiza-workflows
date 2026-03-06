@@ -1,7 +1,7 @@
 {
   "label": "KG Full (Single)",
   "status": "development",
-  "description": "[EXPERIMENTAL] Full KG pipeline: extract, deduplicate, cluster, and describe. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
+  "description": "[EXPERIMENTAL] Full KG pipeline for text-bearing entities: extract, deduplicate, cluster, and describe. Input entities must have a 'text' property already populated — do NOT pass raw files (PDFs, images). Use a file-to-KG workflow for raw files. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
   "version": "1.0",
   "entry": "extract",
   "flow": {

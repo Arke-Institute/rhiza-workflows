@@ -1,6 +1,6 @@
 {
   "label": "Text to KG Basic",
-  "description": "Scatters multiple text entities, chunks and extracts knowledge graph entities.",
+  "description": "Scatters multiple text entities (must have 'text' property populated), chunks them, and extracts knowledge graph entities. For raw files (PDFs, images, JPEGs), use the corresponding file-to-KG workflow instead.",
   "version": "3.0",
   "entry": "scatter",
   "flow": {

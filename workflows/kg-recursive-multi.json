@@ -1,7 +1,7 @@
 {
   "label": "KG Recursive (Multi)",
   "status": "development",
-  "description": "[EXPERIMENTAL] Scatters multiple entities, extracts knowledge graph with clustering, descriptions, and recursive clustering. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
+  "description": "[EXPERIMENTAL] Scatters multiple text-bearing entities, extracts knowledge graph with clustering, descriptions, and recursive clustering. Input entities must have a 'text' property already populated — do NOT pass raw files (PDFs, images). Use a file-to-KG workflow for raw files. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
   "version": "1.0",
   "entry": "scatter",
   "flow": {

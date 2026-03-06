@@ -1,7 +1,7 @@
 {
   "label": "Text to KG Full",
   "status": "development",
-  "description": "[EXPERIMENTAL] Scatters multiple text entities, chunks and extracts knowledge graph with clustering and descriptions. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
+  "description": "[EXPERIMENTAL] Scatters multiple text entities (must have 'text' property populated), chunks and extracts knowledge graph with clustering and descriptions. For raw files, use the corresponding file-to-KG workflow. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
   "version": "3.1",
   "entry": "scatter",
   "flow": {

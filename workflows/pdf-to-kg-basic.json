@@ -1,6 +1,6 @@
 {
   "label": "PDF to KG Basic",
-  "description": "Scatters multiple PDFs, converts to text via OCR and extracts knowledge graph entities. Extracted images are described before KG extraction.",
+  "description": "End-to-end pipeline for raw PDF files: scatters multiple PDFs, extracts text (digital) or converts to JPEG and OCRs (scanned), then extracts knowledge graph entities. Handles all file processing automatically — use this instead of KG-only workflows for PDF input.",
   "version": "3.0",
   "entry": "scatter",
   "flow": {

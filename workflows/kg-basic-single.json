@@ -1,6 +1,6 @@
 {
   "label": "KG Basic (Single)",
-  "description": "Reusable KG extraction core: extract and deduplicate entities from a single input. Single-entity entry point, designed to be invoked as a sub-rhiza from pipelines that handle their own scattering.",
+  "description": "Reusable KG extraction core: extract and deduplicate entities from a single text-bearing input. Expects entities with a 'text' property already populated (e.g. from OCR, PDF text extraction, or text chunking). Do NOT pass raw files (PDFs, images) — use a file-to-KG workflow instead. Single-entity entry point, designed to be invoked as a sub-rhiza from pipelines that handle their own scattering.",
   "version": "3.0",
   "entry": "extract",
   "flow": {

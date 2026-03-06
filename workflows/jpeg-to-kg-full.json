@@ -1,7 +1,7 @@
 {
   "label": "JPEG to KG Full",
   "status": "development",
-  "description": "[EXPERIMENTAL] Scatters multiple JPEGs, extracts text via OCR and extracts knowledge graph with clustering and descriptions. This workflow includes dedupe and clustering steps that are currently unreliable and may produce unpredictable results. Not recommended for production use.",
+  "description": "[EXPERIMENTAL] End-to-end pipeline for raw JPEG files with full KG processing: scatters JPEGs, OCRs them, then extracts, deduplicates, clusters, and describes knowledge graph entities. Handles all file processing automatically. This workflow includes clustering steps that are currently unreliable. Not recommended for production use.",
   "version": "3.0",
   "entry": "scatter",
   "flow": {

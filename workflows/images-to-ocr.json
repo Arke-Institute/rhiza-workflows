@@ -1,6 +1,6 @@
 {
   "label": "Images to OCR",
-  "description": "Scatters multiple images, converts each to JPEG, and extracts text via OCR",
+  "description": "Scatters multiple non-JPEG images (TIFF, PNG, WebP, GIF, BMP), converts each to JPEG, and extracts text via OCR. For JPEGs use jpegs-to-ocr.",
   "version": "1.0",
   "entry": "scatter",
   "flow": {
