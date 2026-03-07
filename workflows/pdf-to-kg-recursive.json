@@ -35,6 +35,9 @@
     },
     "describe_image": {
       "klados": { "id": "$DESCRIBE_KLADOS" },
+      "input": {
+        "update_label": true
+      },
       "then": { "pass": "extract" }
     },
     "extract": {

@@ -22,6 +22,9 @@
     },
     "describe_image": {
       "klados": { "id": "$DESCRIBE_KLADOS" },
+      "input": {
+        "update_label": true
+      },
       "then": { "pass": "kg_process" }
     },
     "kg_process": {
