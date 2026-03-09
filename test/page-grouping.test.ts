@@ -92,10 +92,11 @@ describe('page grouping', () => {
         expect(props.page_numbers).toBeDefined();
         expect(Array.isArray(props.page_numbers)).toBe(true);
 
-        // Should have text with --- Page N --- markers
+        // Should have text with page markers (arke: URI format)
         expect(typeof props.text).toBe('string');
         for (const pageNum of props.page_numbers) {
-          expect(props.text).toContain(`--- Page ${pageNum} ---`);
+          // Markers use --- [Page N](arke:ENTITY_ID) --- format
+          expect(props.text).toContain(`[Page ${pageNum}](arke:`);
         }
 
         // Verify contains_page relationships
@@ -178,10 +179,10 @@ describe('page grouping', () => {
           const props = group.properties as Record<string, any>;
           expect(props.page_numbers).toBeDefined();
 
-          // Text should be populated by OCR with page markers
+          // Text should be populated by OCR with page markers (arke: URI format)
           if (props.text) {
             for (const pageNum of props.page_numbers) {
-              expect(props.text).toContain(`--- Page ${pageNum} ---`);
+              expect(props.text).toContain(`[Page ${pageNum}](arke:`);
             }
           }
         }
