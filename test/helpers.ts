@@ -12,11 +12,15 @@ import {
   configureTestClient,
   createCollection,
   createEntity,
+  getEntity,
+  getCollectionEntities,
   invokeRhiza,
   waitForWorkflowTree,
+  apiRequest,
   log,
   type WorkflowLogTree,
   type KladosLogEntry,
+  type Entity,
 } from '@arke-institute/klados-testing';
 
 // =============================================================================
@@ -255,4 +259,32 @@ export function assertKladosRan(
 export function assertKladosDidNotRun(logs: KladosLogEntry[], kladosId: string): void {
   const matching = filterLogs(logs, kladosId);
   expect(matching.length, `Expected klados ${kladosId} to not run`).toBe(0);
+}
+
+// =============================================================================
+// Entity Query Helpers
+// =============================================================================
+
+/**
+ * Fetch entities from a target collection filtered by type.
+ * Uses the collection listing endpoint + individual entity fetches.
+ *
+ * Note: Subject to indexing lag. Add a short delay if entities were just created.
+ */
+export async function getCollectionEntitiesByType(
+  collectionId: string,
+  entityType: string,
+): Promise<Entity[]> {
+  const listing = await getCollectionEntities(collectionId);
+  const matching = listing.entities.filter((e) => e.type === entityType);
+  const entities = await Promise.all(matching.map((e) => getEntity(e.id)));
+  return entities;
+}
+
+/**
+ * Fetch an entity with its full properties and relationships.
+ * Alias for getEntity — relationships are always included on GET /entities/{id}.
+ */
+export async function getEntityWithRelationships(entityId: string): Promise<Entity> {
+  return getEntity(entityId);
 }

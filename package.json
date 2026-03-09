@@ -12,11 +12,12 @@
   },
   "dependencies": {
     "@arke-institute/rhiza": "^0.7.15",
-    "@arke-institute/sdk": "^3.6.13"
+    "@arke-institute/sdk": "^3.6.15"
   },
   "devDependencies": {
-    "@arke-institute/klados-testing": "^0.3.3",
+    "@arke-institute/klados-testing": "^0.4.1",
     "@types/node": "^22.0.0",
+    "pdf-lib": "^1.17.1",
     "tsx": "^4.0.0",
     "typescript": "^5.7.2",
     "vitest": "^2.0.0"
