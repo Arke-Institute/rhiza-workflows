@@ -11,7 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@arke-institute/rhiza": "^0.7.15",
+    "@arke-institute/rhiza": "^0.12.0",
     "@arke-institute/sdk": "^3.6.15"
   },
   "devDependencies": {
